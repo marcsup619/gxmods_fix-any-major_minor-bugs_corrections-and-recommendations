@@ -1,12 +1,19 @@
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 # Disclaimer
 
-This feature is highly experimental. Expect things to break or not to work as expected at any times. This feature is still under development. There are known bugs and certain limitations we're (or are not)aware of.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Overview
+This feature is highly experimental. Expect things to break or not to work as expected at any times. This feature is still under development. There are known bugs and certain limitations we're (or are not)aware of. Most of the side-part information has been extrapolated from the main guidlines file, forked by me, for self esteem* and to provife ease of acces to anyone who has the guts to read every singlie word in this .md file.
 
-*If you're writing shaders to be used by the Opera GX Mod you can jump directly to the next paragraph as Mods engine will apply the shaders for you.*
+# Overview:
 
-## Basic filter
+*If you're writing shaders to be used by the Opera GX Mod you can jump directly to the next paragraph as Mods engine will apply the shaders for you.* Optimize your shaders to use as little GPU as possible. If you create an animated shader, make sure to limit the framerate as much as possible to avoid useless GPU usage. For example, a clock that changes display every second doesn't need to run at 60fps. Use as few uniforms as possible. Don't use iMouse uniform unless you need it
+
+it has performance implications. Consider including a non-animated version of the shader to limit GPU usage
+(mods can include more than one shader).
+
+## Basic filter:
 
 Opera’s GPU shader CSS filters (we'll call it `shaders` or `shader filters` for simplicity) lets you apply a regular CSS filter using your own GPU shader code. From a web dev perspective applying a shader filter is as easy as adding
 
@@ -14,27 +21,27 @@ Opera’s GPU shader CSS filters (we'll call it `shaders` or `shader filters` fo
 
 to the element's style. The `source_url` must point to the shader source written in SkSL (you'll find more on SkSL in the next chapter). It can be a data url as well.
 
-## Passing custom args
+## Passing custom args:
 
 > This feature is planned to be released in Opera GX v.95.x and later.
 
-An extra args may be passed from the CSS straight to the shader. Use `-opera-args()` CSS function to pass any number of extra arguments to the shader. In shader, declare `iArgs[]` uniform with same exact size as the number of `-opera-args()` parameters. For example:
+An extra args may be passed from the CSS straight to the shader. Use `-opera-args()` CSS function to pass any number of extra arguments to the shader. In shader, declare `iArgs[]` uniform with same exact size as the number of `-opera-args()` parameters. Here are a few examples. For example:
 
-In stylesheet:
+In stylesheet's use-case:-
 
     filter: -opera-shader(url(source_url) -opera-args(10 20 30 40));
 
-In shader:
+In shader's use-case:-
 
     uniform float iArgs[4];
 
-> You are allowed to use CSS variables and other functions like `calc()` as the arguments to the `-opera-args()` function.
+> You are allowed to use CSS variables and other functions like `calc()` as the arguments to the `-opera-args()` function. And the amount of structural integrity and the rigidity that shaders provide are just brillient! 
 
-## Animated filters
+## Animated filters:
 
 > This feature is planned to be released in Opera GX v.95.x and later.
 
-The parameters of `-opera-args()` can be used in CSS animations. The rendering engine will interpolate actual values according to the animation definition and shader will receive interpolated values for each drawn frame. For example:
+The parameters of `-opera-args()` can be used in CSS animations. The rendering engine will interpolate actual values according to the animation definition and shader will receive interpolated values for each drawn frame. Here is an example. For example:
 
     div.filter {
         animation: sample 5s infinite;
@@ -51,13 +58,16 @@ The parameters of `-opera-args()` can be used in CSS animations. The rendering e
         }
   }
 
-In the above example shader can use `iArgs[4]` array uniform where iArgs[0] will be somewhere between 0 and 1 (depending on animation timeline, etc) and the remaining values will remain same for all drawn frames.
+In the above example shader can use `iArgs[4]` array uniform where iArgs[0] will be somewhere between 0 and 1 (depending on animation timeline, etc) and the remaining values will remain same for drawn frames. This feature applies to all down frames, including this.
 
-# Writing Shaders
+# Writing Shaders:
 
-There are many ways of writing gpu shaders. Since our shaders are run in the browser ecosystem they must follow certain rules in order to have them injected into the browser rendering pipeline.
+There are many ways of writing gpu shaders. Since our shaders are run in the browser ecosystem they must follow certain rules in order to have them injected into the browser rendering pipeline. Optimize your shaders to use as little GPU as possible. If you create an animated shader, make sure to limit the framerate as much as possible to avoid useless GPU usage. For example, a clock that changes display every second doesn't need to run at 60fps. Use as few uniforms as possible. Don't use iMouse uniform unless you need it
 
-## Image Filtering in a Nutshell
+it has performance implications. Consider including a non-animated version of the shader to limit GPU usage
+(mods can include more than one shader).
+
+## Image Filtering in a Nutshell:
 
 CSS filters are regular image filters. Whenever a HTML element has a `filter` property set, the rendering engine will:
 - render its contents into the separate texture
@@ -74,9 +84,9 @@ Since our filters run within browser ecosystem we must follow certain rules enfo
 
 In pure GLSL you are allowed to define your own uniforms (global variables) that can be accessed by the shader program. Uniforms acts like a parameters passed from the user of the shader to the shader program. In our case there is a set of uniforms defined by the engine itself and you are allowed to use them in your shader filters. You are not allowed to declare any other uniforms - this will throw a runtime error (a detailed error message is sent to the browser's dev tools console) and your shader won't be run.
 
-> Please declare *only* those uniforms that you actually use in your shader. Some uniforms (like `iMouse`) require additional handling that costs extra CPU processing power.
+> Please don't forget to declare *only* those uniforms that you actually use in your shader. Some uniforms (like `iMouse`) require additional handling that costs extra CPU processing power. Do consider to be extra careful on these procedures.
 
-Current version of shaders engine bind following uniforms:
+Current version of shaders engine bind following uniforms:-
 
 | Uniform Name | Type | Description |
 |---|---|---|
@@ -90,15 +100,15 @@ Current version of shaders engine bind following uniforms:
 |`iRootViewColor`| float4 | An [`r`, `g`, `b`, `a`] value reflecting color of the viewport. Valid only when filters are applied to the `:root` element.|
 |`iArgs`|float[]|A variable length array used to carry the args defined in the CSS by the `-opera-args()` function. See [Passing custom args](#passing-custom-args) for more details.|
 
-### Deprecated uniforms
+### Deprecated uniforms:
 
-Following uniforms are deprecated and will be removed as soon as with version 95.x of Opera GX.
+Following listed table uniforms are deprecated and will be removed as soon as with version 95.x of Opera GX:
 
 | Uniform Name | Type | Description |
 |---|---|---|
 | `iFrame` | float | A value between 0 and 100 describing current animation frame. This is used by the Opera Mods engine for shaders that are willing to animate. You can setup animation by adding the `animation` entry to the Mod's manifest and `iFrame` will be calculated for each animation frame accordingly to the animation parameters. This is similar to how [animated shaders](#animated-filters) work together with `-opera-args()` function.| 
 
-## Example Shader
+## Example Shader:
 
 ```
 // Currently processed chunk (subregion) of the source image.
@@ -218,3 +228,5 @@ half4 main(float2 xy) {
   return iChunk.eval(xy);
 }
 ```
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
